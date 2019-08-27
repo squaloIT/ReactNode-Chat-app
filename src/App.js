@@ -31,7 +31,6 @@ function App() {
             </Suspense>
           </div>
           <Chat />
-          <Footer />
         </div>
       </React.StrictMode>
     </div>

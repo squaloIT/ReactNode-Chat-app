@@ -1,5 +1,11 @@
 .chat {
   grid-area: right;
-  background-color: antiquewhite;
   height: 100%;
+  margin-top: 50px;
+  width: 30%;
+  height: 100%;
+  position: fixed;
+  right: 0;
+  overflow-y: auto;
+  /* DODATI SCROLL BAR */
 }

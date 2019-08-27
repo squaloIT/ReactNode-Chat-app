@@ -1,0 +1,7 @@
+.FriendsList {
+  width: 90%;
+  margin: 0px auto;
+}
+.FriendsList > ul {
+  list-style: none;
+}
