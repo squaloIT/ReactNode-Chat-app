@@ -1,0 +1,10 @@
+.items {
+  margin-top: 0px;
+  list-style: none;
+  padding-top: 10px;
+  box-sizing: border-box;
+}
+.items > li {
+  display: inline-block;
+  margin-left: 40px;
+}

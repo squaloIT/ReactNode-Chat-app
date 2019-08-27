@@ -1,0 +1,15 @@
+.navbar {
+  height: 40px;
+  background-color: #d1d1d1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-shadow: 1px 1px 4px #9880d9;
+}
+
+/* #D1D1D1 - SvetloSiva
+#787878 - TamnoSiva
+#000000 - crna
+#9880D9 - ljubicasta svetlo
+#C20232 - crvenkasta */
