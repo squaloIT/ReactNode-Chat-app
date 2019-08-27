@@ -6,7 +6,7 @@ const Items = props => {
   return (
     <ul className={css.items}>
       <Item path="/" value="Home" />
-      <Item path="/Profile" value="Profile" />
+      <Item path="/Profile/17" value="Profile" />
     </ul>
   );
 };

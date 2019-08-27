@@ -1,3 +1,20 @@
 .App {
   text-align: center;
 }
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    "header header header header header header"
+    "main main main main right right"
+    "footer footer footer footer right right";
+  grid-gap: 10px;
+  /* background-color: #2196F3; */
+  padding: 10px;
+  /* height: 1000px; */
+}
+
+.main {
+  grid-area: main;
+  background-color: coral;
+  width: 100%;
+}

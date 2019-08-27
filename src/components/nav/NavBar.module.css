@@ -6,6 +6,10 @@
   left: 0;
   width: 100%;
   box-shadow: 1px 1px 4px #9880d9;
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0px;
+  grid-area: header;
 }
 
 /* #D1D1D1 - SvetloSiva
