@@ -3,7 +3,6 @@ import { Router } from "@reach/router";
 
 import NavBar from "./components/nav/NavBar";
 import Chat from "./components/Chat/Chat";
-import Footer from "./components/Footer/Footer";
 import "./App.css";
 
 const Home = lazy(() => import("./components/Home/Home"));
@@ -11,8 +10,8 @@ const Profile = lazy(() => import("./components/Profile/Profile"));
 
 function App() {
   return (
-    <div className="App">
-      <React.StrictMode>
+    <React.StrictMode>
+      <div className="App">
         <div className="grid-container">
           <NavBar />
           <div className="main">
@@ -32,8 +31,8 @@ function App() {
           </div>
           <Chat />
         </div>
-      </React.StrictMode>
-    </div>
+      </div>
+    </React.StrictMode>
   );
 }
 

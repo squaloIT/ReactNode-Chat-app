@@ -16,3 +16,11 @@ code {
 .main {
   margin: 50px auto;
 }
+#floating-chat {
+  position: fixed;
+  left: 15px;
+  bottom: 0;
+  width: 69%;
+  height: 250px;
+  background-color: aquamarine;
+}
