@@ -1,15 +1,40 @@
 import React from "react";
+import { connect } from "react-redux";
 
 import css from "./UsernameToolbar.module.css";
 
-const UsernameToolbar = ({ username, userID }) => {
+const UsernameToolbar = ({
+  username,
+  userID,
+  onClickRemoveFriendFromCurrentChatList
+}) => {
   return (
     <div className={css["username-toolbar"]}>
       <span className={css.status + " " + css.online}></span>
       <span className={css.username}>{username}</span>
-      <span className={css.close}>X</span>
+      <a
+        className={css.close}
+        onClick={e => {
+          e.preventDefault();
+          onClickRemoveFriendFromCurrentChatList(userID);
+        }}
+      >
+        X
+      </a>
     </div>
   );
 };
 
-export default UsernameToolbar;
+const mapActionsToProps = dispatch => {
+  return {
+    onClickRemoveFriendFromCurrentChatList: id =>
+      dispatch({
+        type: "REMOVE_FRIEND_FROM_SELECTED_FRIENDS_FOR_CHAT",
+        payload: { userID: id }
+      })
+  };
+};
+export default connect(
+  null,
+  mapActionsToProps
+)(UsernameToolbar);

@@ -24,6 +24,19 @@ const reducer = (state = initialState, action) => {
       return {
         ...state
       };
+    case "REMOVE_FRIEND_FROM_SELECTED_FRIENDS_FOR_CHAT":
+      const filterFriends = state.selectedFriendsForChat.filter(
+        friend => friend.userID !== action.payload.userID
+      );
+      console.log(filterFriends);
+      // state = {
+      //   ...state,
+      //   selectedFriendsForChat: filterFriends
+      // };
+      return {
+        ...state,
+        selectedFriendsForChat: filterFriends
+      };
 
     default:
       return state;

@@ -11,15 +11,10 @@ const ChatWindowContainer = props => {
     <ChatWindowsPortal>
       <div className={css.ChatWindowContainer}>
         {props.friendsForChat.length === 0 ? (
-          <h1>Nema PRIJATELJA ZA CHAT</h1>
+          <h1></h1>
         ) : (
           props.friendsForChat.map(({ userID, username }) => {
             return (
-              // <div key={userID} className="">
-              //   <h1>
-              //     {username} {userID}
-              //   </h1>
-              // </div>
               <ChatWindow key={userID} userID={userID} username={username} />
             );
           })

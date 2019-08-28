@@ -25,6 +25,7 @@
   color: #000;
   font-weight: 200;
 }
-.username-toolbar > span.close {
+.username-toolbar > a.close {
   color: #333;
+  cursor: pointer;
 }
