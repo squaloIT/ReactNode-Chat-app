@@ -4,7 +4,7 @@ import { Router } from "@reach/router";
 import NavBar from "./components/nav/NavBar";
 import Chat from "./components/Chat/Chat";
 import "./App.css";
-import ChatWindowContainer from "./components/ChatWindowContainer";
+import ChatWindowContainer from "./components/ChatWindows/ChatWindowContainer";
 
 const Home = lazy(() => import("./components/Home/Home"));
 const Profile = lazy(() => import("./components/Profile/Profile"));

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
-const ChatWindows = props => {
+const ChatWindowsPortal = props => {
   const divRef = useRef(null);
 
   if (!divRef.current) {
@@ -20,4 +20,4 @@ const ChatWindows = props => {
   return createPortal(<div>{props.children}</div>, divRef.current);
 };
 
-export default ChatWindows;
+export default ChatWindowsPortal;
