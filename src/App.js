@@ -4,6 +4,7 @@ import { Router } from "@reach/router";
 import NavBar from "./components/nav/NavBar";
 import Chat from "./components/Chat/Chat";
 import "./App.css";
+import ChatWindowContainer from "./components/ChatWindowContainer";
 
 const Home = lazy(() => import("./components/Home/Home"));
 const Profile = lazy(() => import("./components/Profile/Profile"));
@@ -30,6 +31,7 @@ function App() {
             </Suspense>
           </div>
           <Chat />
+          <ChatWindowContainer />
         </div>
       </div>
     </React.StrictMode>

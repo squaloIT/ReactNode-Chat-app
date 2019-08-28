@@ -6,21 +6,23 @@ import ChatWindow from "./ChatWindows/ChatWindows";
 const ChatWindowContainer = props => {
   console.log("PROMENA");
   return (
-    <div>
-      {props.friendsForChat.length === 0 ? (
-        <h1>Nema PRIJATELJA ZA CHAT</h1>
-      ) : (
-        props.friendsForChat.map(({ userID, username }) => {
-          return (
-            <div>
-              <h1>
-                {username} {userID}
-              </h1>
-            </div>
-          );
-        })
-      )}
-    </div>
+    <ChatWindow>
+      <div>
+        {props.friendsForChat.length === 0 ? (
+          <h1>Nema PRIJATELJA ZA CHAT</h1>
+        ) : (
+          props.friendsForChat.map(({ userID, username }) => {
+            return (
+              <div key={userID}>
+                <h1>
+                  {username} {userID}
+                </h1>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </ChatWindow>
   );
 };
 

@@ -20,7 +20,10 @@ const reducer = (state = initialState, action) => {
         };
       }
       console.log(state.selectedFriendsForChat);
-      break;
+      //! OBAVEZNO SA RETURN VRATITI STANJE
+      return {
+        ...state
+      };
 
     default:
       return state;
