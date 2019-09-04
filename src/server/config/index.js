@@ -1,11 +1,11 @@
-import { merge } from "lodash";
+const { merge } = require("lodash");
 const env = process.env.NODE_ENV || "development";
 
 const baseConfig = {
   env,
   isDev: env === "development",
   isTest: env === "testing",
-  port: 3000,
+  port: 3030,
   secrets: {
     jwt: process.env.JWT_SECRET,
     jwtExp: "100d"
@@ -27,4 +27,4 @@ switch (env) {
     envConfig = require("./dev").config;
 }
 
-export default merge(baseConfig, envConfig);
+module.exports = merge(baseConfig, envConfig);

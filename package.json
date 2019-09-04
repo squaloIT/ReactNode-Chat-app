@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "React-Node-Chat-App",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -18,11 +18,15 @@
     "redux": "^4.0.4"
   },
   "scripts": {
+    "build-dist": "babel src --out-dir dist",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "format": "prettier \"src/**/*.{js, html}\" --write"
+    "format": "prettier \"src/**/*.{js, html}\" --write",
+    "dev": "nodemon --exec yarn restart",
+    "start-server": "node src/server/server.js",
+    "restart": "rimraf dist && yarn build-dist && yarn start-server && yarn start"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -40,6 +44,20 @@
     ]
   },
   "devDependencies": {
-    "prettier": "^1.18.2"
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/plugin-syntax-jsx": "^7.2.0",
+    "@babel/plugin-transform-react-display-name": "^7.2.0",
+    "@babel/plugin-transform-react-jsx": "^7.3.0",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^10.0.3",
+    "nodemon": "^1.19.2",
+    "prettier": "^1.18.2",
+    "rimraf": "^3.0.0"
   }
 }
