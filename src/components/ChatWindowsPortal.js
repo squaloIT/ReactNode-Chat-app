@@ -7,8 +7,10 @@ const ChatWindowsPortal = props => {
   if (!divRef.current) {
     divRef.current = document.createElement("div");
   }
+  console.log("ChatWindowsPortal - JA SE IZVRSAVAM");
 
   useEffect(() => {
+    console.log("USE EFFECT - JA SE IZVRSAVAM");
     const floatingChatDiv = document.getElementById("floating-chat");
     floatingChatDiv.appendChild(divRef.current);
 

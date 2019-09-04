@@ -6,7 +6,6 @@ import ChatWindowsPortal from "./../ChatWindowsPortal";
 import ChatWindow from "./ChatWindow/ChatWindow";
 
 const ChatWindowContainer = props => {
-  console.log("PROMENA");
   return (
     <ChatWindowsPortal>
       <div className={css.ChatWindowContainer}>

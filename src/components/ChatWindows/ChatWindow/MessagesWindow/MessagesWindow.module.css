@@ -1,0 +1,23 @@
+.MessagesWindow {
+  height: 180px;
+  margin-top: 0px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: scroll;
+}
+.MessagesWindow > div {
+  margin: 2px 2px;
+}
+.myMessage {
+  display: inline-block;
+  background-color: #9880d9;
+  border-radius: 5px;
+}
+.myMessage > p {
+  margin: 5px 2px;
+  text-align: right;
+}
+.friendMessage > p {
+  text-align: left;
+  margin-left: 2px;
+}
