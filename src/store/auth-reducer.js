@@ -13,17 +13,19 @@ const initialState = {
 const auth = async (state = initialState, action) => {
   switch (action.type) {
     case "CHECK_USER_CREDENTIALS_DB":
-      const { email, password } = action.payload;
+      const { email, password, username } = action.payload;
       try {
         var payload = await axios.post("http://localhost:3030/login-user", {
           email,
-          password
+          password,
+          username
         });
       } catch (e) {
         console.error(e);
       }
       state = {
         ...state,
+        isLoggedIn: true,
         user: {
           ...payload
         },

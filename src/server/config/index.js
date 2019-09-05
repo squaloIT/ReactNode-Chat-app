@@ -7,7 +7,7 @@ const baseConfig = {
   isTest: env === "testing",
   port: 3030,
   secrets: {
-    jwt: process.env.JWT_SECRET,
+    jwt: process.env.JWT_SECRET || "learneverything",
     jwtExp: "100d"
   }
 };
