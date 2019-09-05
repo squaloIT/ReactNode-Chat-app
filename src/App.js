@@ -7,6 +7,8 @@ import "./App.css";
 import ChatWindowContainer from "./components/ChatWindows/ChatWindowContainer";
 
 const Home = lazy(() => import("./components/Home/Home"));
+const Login = lazy(() => import("./components/Login/Login"));
+const Register = lazy(() => import("./components/Register/Register"));
 const Profile = lazy(() => import("./components/Profile/Profile"));
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
             >
               <Router>
                 <Home path="/" />
+                <Login path="/login" />
+                <Register path="/register" />
                 <Profile path="/Profile/:id" />
               </Router>
             </Suspense>

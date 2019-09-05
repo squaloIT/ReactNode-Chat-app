@@ -14,7 +14,8 @@ code {
 }
 
 .main {
-  margin: 50px auto;
+  /* margin: 0px auto; */
+  margin-top: 40px;
 }
 #floating-chat {
   position: fixed;

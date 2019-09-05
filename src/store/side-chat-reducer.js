@@ -2,7 +2,7 @@ const initialState = {
   selectedFriendsForChat: []
 };
 
-const reducer = (state = initialState, action) => {
+const sideChatReducer = (state = initialState, action) => {
   switch (action.type) {
     case "ADD_SELECTED_FRIEND_TO_CHAT":
       //Ako vec postoji ne dodavati ga
@@ -43,4 +43,4 @@ const reducer = (state = initialState, action) => {
   }
 };
 
-export default reducer;
+export default sideChatReducer;

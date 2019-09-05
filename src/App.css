@@ -18,6 +18,6 @@
 
 .main {
   grid-area: main;
-  background-color: coral;
+  /* background-color: coral; */
   width: 100%;
 }

@@ -7,6 +7,8 @@ const Items = props => {
     <ul className={css.items}>
       <Item path="/" value="Home" />
       <Item path="/Profile/17" value="Profile" />
+      <Item path="/login" value="Login" />
+      <Item path="/register" value="Register" />
     </ul>
   );
 };

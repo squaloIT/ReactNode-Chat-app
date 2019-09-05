@@ -27,7 +27,7 @@ const mapStateToProps = state => {
   console.log("state");
   console.log(state);
   return {
-    friendsForChat: state.selectedFriendsForChat
+    friendsForChat: state.sideChat.selectedFriendsForChat
   };
 };
 
