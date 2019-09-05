@@ -13,12 +13,11 @@ const initialState = {
 const auth = async (state = initialState, action) => {
   switch (action.type) {
     case "CHECK_USER_CREDENTIALS_DB":
-      const { email, password, username } = action.payload;
+      const { email, password } = action.payload;
       try {
         var payload = await axios.post("http://localhost:3030/login-user", {
           email,
-          password,
-          username
+          password
         });
       } catch (e) {
         console.error(e);
@@ -37,7 +36,17 @@ const auth = async (state = initialState, action) => {
       return {
         ...state
       };
-    case "REMOVE_FRIEND_FROM_SELECTED_FRIENDS_FOR_CHAT":
+    case "REGISTER_USER_WITH_CREDENTIALS_DB":
+      const { emailR, passwordR, usernameR } = action.payload;
+      try {
+        var payload = await axios.post("http://localhost:3030/register-user", {
+          emailR,
+          passwordR,
+          usernameR
+        });
+      } catch (e) {
+        console.error(e);
+      }
       return {
         ...state
       };
