@@ -20,7 +20,7 @@ const newToken = user => {
 };
 
 const register = async (req, res) => {
-  console.log(req.body);
+  //!TODO NE STIZE NISTA U BODY zAHTEVA IZ REACT-a VIDETI ZASTo
   const { email, password, username } = req.body;
   if (!email || !password || !username) {
     return res.status(401).json({ message: "Unesite sifru i email" });
@@ -47,23 +47,20 @@ const register = async (req, res) => {
 
   res.status(200).json({
     message: "User registered",
-    payload: {
-      user: {
-        username: user.username
-        // friends
-      },
-      userId: user._id,
-      token: token
+    user: {
+      username: user.username,
+      // friends
+      authData: {
+        userId: user._id,
+        idToken: token,
+        expiresIn: 2000
+      }
     }
   });
+};
 
-  // isLoggedIn: false,
-  // user: {
-  //   userID: null,
-  //   username: null,
-  //   friends: []
-  // },
-  // token: null
+const login = async (req, res) => {
+  console.log(req.body);
 };
 
 module.exports = { register };

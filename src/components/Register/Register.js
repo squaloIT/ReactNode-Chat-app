@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link } from "@reach/router";
 import { connect } from "react-redux";
+import { register } from "./../../store/actions/auth";
 
 import css from "./Register.module.css";
 
@@ -40,6 +41,7 @@ class Register extends Component {
     const email = this.state.email;
     const password = this.state.password;
     const username = this.state.username;
+    console.log("ON SUBMIT ", email, password, username);
     this.props.onClickRegisterButton(email, password, username);
   }
   render() {
@@ -93,6 +95,7 @@ class Register extends Component {
               Already have account? Click here to login
             </Link>
           </div>
+          {this.props.error ? <p>{this.props.error.message}</p> : null}
         </div>
       </div>
     );
@@ -102,15 +105,17 @@ class Register extends Component {
 const mapActionToProps = dispatch => {
   return {
     onClickRegisterButton: (email, password, username) => {
-      dispatch({
-        type: "REGISTER_USER_WITH_CREDENTIALS_DB",
-        payload: { email, password, username }
-      });
+      dispatch(register(email, password, username));
     }
   };
 };
-
+const mapGlobalStateToProps = state => {
+  return {
+    isAuthenticated: state.authReducer.user.authData.idToken !== null,
+    error: state.authReducer.error
+  };
+};
 export default connect(
-  null,
+  mapGlobalStateToProps,
   mapActionToProps
 )(Register);

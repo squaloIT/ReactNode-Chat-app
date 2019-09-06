@@ -29,19 +29,22 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", function preSave(next) {
+userSchema.pre("save", async function(next) {
+  console.log("PRE SAVE_A");
   if (!this.isModified("password")) {
+    console.log("IS MODIFIED IF");
     next();
   }
 
-  bcrypt.hash(this.password, 10, function(err, hash) {
-    // Store hash in your password DB.
-    if (err) {
-      return;
-    }
+  const hash = await bcrypt.hash(this.password, 10);
+  try {
     this.password = hash;
-    next();
-  });
+    console.log("Sifrovanje uspelo ", this.password);
+  } catch (e) {
+    console.log("GRESKA PRILIKOM HASHOVANJA");
+    console.error(e);
+  }
+  next();
 });
 
 userSchema.methods.checkPassword = function(password) {
