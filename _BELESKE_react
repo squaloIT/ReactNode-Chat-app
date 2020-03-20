@@ -1,0 +1,498 @@
+emmet.io - pogledati njihove komande koje olaksavaju pisanje koda
+
+Sta je react a sta react dom? React je veoma mali sa svega recimo 2kb i on govori kako treba da interaktujemo sa react-om.
+React dom je ustvari ona veca biblioteka koja uzima react package i renderuje sve potrebno u dom.
+React Native je isto sto i dom, samo sto on funkcionise za android i IOS aplikacije.
+
+
+Komponenta koju sam napravio, ne moze da postoji sama za sebe osim ako ne iskoristim React DOM da tu komponentu negde renderujem.
+Moc react-a je sto ta komponenta moze da sadrzi druge komponente, koje mogu da sadrze druge komponente i tome slicno.
+
+Kreiranje GIT
+
+…or create a new repository on the command line
+echo "# React-Adopt-me-app" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/squaloIT/React-Adopt-me-app.git
+git push -u origin master
+…or push an existing repository from the command line
+git remote add origin https://github.com/squaloIT/React-Adopt-me-app.git
+git push -u origin master
+…or import code from another repository
+You can initialize this repository with code from a Subversion, Mercurial, or TFS project.
+
+
+Prettier - devDependency 
+Tu je kako bi moj kod bio bolji. Odnosno kako bi standardizovao nacin pisanja koda kod mene i kod svih drugih koji rade na projektu.
+
+"format": "prettier \"src/**/*.{js, html}\" --write"
+- Ovo sam stavio u package.json, i kada pokrenem ovo sve se ispravi u svakom fajlu u skladu sa pravilima prettier-a.
+- Bez --write on bi mi samo u konzoli ispisao sta je uradio, sa ovim upisuje to u fajlove.
+- Moraju dupli navodnici!
+
+
+E sad na ovaj nacin to radi samo kada ga pokrenem kroz cmd, ali mogu da definisem pomocu extenzije Prettier Code Formating da se prilikom svakog Save-a to uradi.
+Postavljam to
+
+
+ESLINT 
+instalacija kroz cmd, nakon toga instalacija eslint-config-prettier koji omogucava da eslint pokupi pravila od prettier-a.
+
+Komanda unutar package.json koja pokrece prettier
+"lint": "eslint \"src/**/*.{js, jsx}\" --quiet"
+
+Nakon ovoga dodata ekstenzija editoru kako bi prilikom kucanja koda odmah bila pronadjena greska, ne kad pokrenem cmd.
+
+PARCEL
+
+Veoma je pametan, nema konfiguraciju jer sam konta sve stvari i bundeluje fajlove. Webpack mocniji i bolji ali kompleksniji, dok je parcel slabiji ali mnogo jedonstavniji.
+
+npm i -D parcel-bundler
+
+Konfiguracija parcel-a ne postoji, sve sto treba da uradim jeste da unutar package.json-a postavim : 
+"dev": "parcel src/index.html" 
+
+
+PODESAVANJA REACT-A SA ESLINT-om i BABELOM
+
+npm install -D babel-eslint eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react
+
+.eslintrc
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended",
+    "prettier",
+    "prettier/react"
+  ],
+  "rules": {
+    "react/prop-types": 0,
+    "no-console": 1
+  },
+  "plugins": ["react", "import", "jsx-a11y"],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+    "es6": true,
+    "browser": true,
+    "node": true
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
+
+
+return (
+  <div>
+    <h1>
+      Neki tekst
+    </h1>
+  </div>
+);
+- Ovde zagrade ne rade nista zapravo, smao kazu da ce se kod koji se vraca prostirati na vise linija koda 
+
+
+- Ono sto moze da se nadje unutar { } jsx-a je ono sto moze da se nadje sa desne strane = bilo kog statement-a
+- Moze biti naprimer name + breed ali ne i if izraz
+
+
+class se ne moze koristiti kao css klasa, jer je to kljucna rec u JS-u. Zato je className.
+
+
+ESLINT je podrzao react dev team u pisanju odredjenih pravila za hooks, i oni se mogu isntalirati putem npm-a
+npm i -D eslint-plugin-react-hooks
+  
+
+  Osim toga unutar eslintrc moram definisati i rule koji se zove "react-hooks/rules-of-hooks" i "react-hooks/exhaustive-deps"
+
+
+CUSTOM hooks
+
+Prave se kao i svaka druga komponenta, jedina razlika je sto unutar sebe koriste useState, i funkcija koja se vraca dobija stanje. Primer useDropdown
+
+
+Ucitati pet iz @front
+Ucitati useEffect iz react
+
+useEffect menja nekoliko lifecycle hooks koje imamo unutar klasa kada radimo sa react.
+https://reactjs.org/docs/hooks-effect.html
+
+useEffect se ne izvrsava odmah, nego nakon sto se sve ucita po prvi put. Sve je sadrzaj komponente jer zelimo da korisnik vidi nesto odmah, pa kada stigne odgovor od strane servera to je okej onda cemo ga ucitati.
+
+Kada god radim sa react-om obavezno moram postaviti NODE_ENV=development, a OBAVEZNO PRE PRODUCTION MENJATI U PRODUCTION!
+Ovo Parcel radi za mene.
+
+<React.Strict></React.Strict> - je komponenta kojom mogu obmotati celu moju aplikaciju ili barem deo moje aplikacije. Ono sto ona radi jeste da vodi racuna da u tim komponentama koje su obmotanje ovom komponetnom, ne mogu da koristim neke funkcije ili stvari koje React zeli da odbaci ( deprecated ). To je dobro jer necu imati problema kasnije.
+- Mogu da definisem da neki stari deo aplikacije ne bude u strict modu, a neki noviji da. 
+
+Unutar package.json fajla, Parcel-u mogu da kazem za koje verzije browsera treba da transpajlira kod.
+
+"browserslist": [
+    "last 2 Chrome versions",
+    "last 2 ChromeAndroid versions",
+    "last 2 Firefox versions",
+    "last 2 FirefoxAndroid versions",
+    "last 2 Safari versions",
+    "last 2 iOS versions",
+    "last 2 Edge versions",
+    "last 2 Opera versions",
+    "last 2 OperaMobile versions"
+  ]
+
+
+  Dodati Pets component, proslediti mu props pets i prikazati pets. Props prihvatati sa destructuring.
+
+  Ukoliko pets.length je 0, ispisati h1 gde pise Pets not found. 
+  AKo ne ispisati sve petove u po jednom pet komponentu. Do pet proslediti, type, key, name, breed, media, location - kao state i city, id peta.
+
+  Izmeniti pet komponent tako da izgleda kao sto je on napravio.
+
+  Obezbediti unutar pet-a da se postavi placeholder slika 300x300 ukoliko ne postoji slika psa. 
+  <a href=/details/${id} className="pet">
+    <div .image-container>
+      <img
+    </div>
+    <div className="info">
+      <h1>Name</h1>
+      <h2> nesto durog</h2>
+    </div>
+  </a>
+
+
+  Dodati Reach router. Postoje React router i Reach router i jedan i drugi kaze da su dobri ali reach router se fokusira mnogo vise na focus koliko sam shvatio.
+  Velika razlika izmedju ova dva jeste sto ce Reach router, za razliku od React router, ucitati samo jednu stranicu koja se *NAJVISE* poklapa nekoj ruti koja je pogodjenja. React router prikazuje sve rute koje se poklapaju sa odredjenom rutom. *NAJVISE* odredjuje njihov algoritam za odredjivanje koja ruta se najvise poklapa.
+  REdosled definisanja ruta NIJE BITNA.
+  Kod Reach router-a je moguce definisati vise router-a na vise razlicitih strana, gde oni funkcionisu totalno ne zavisno jedan od drugog.
+  Ne mora sve da bude unutar <Router>. Pravilo Reach router0a jeste da unutar Router taga moze biti samo ono sto ima link i path atribute
+  
+  Dodati Details.js komponentu. Vraca samo h1 sa nebitnim tekstom.
+  Importovati Router iz @reach/router, na taj nacin pustam parcel da sam instalira ovo.
+
+  Unutar app.js dodati <Router> searchparams path="/" | details path="/details/:id" </Router>
+
+  Definisati link od Adopt me sa <Link to="/"/>\
+
+
+  Class components
+
+  Moraju imati render metod!!! Hooks ne rade sa klasnim komponentama 
+
+  Promeniti da Details bude class-na komponenta.
+
+  Unutar componentDidMount kontaktirati pet i dohvatiti jednu animal sa id koji smo prosledili kroz url adresu.
+  Kada ona stigne postaviti stanje sa this.setState({
+    name: anmial.name,
+    animal: animal.type,
+    lokacija: grad drzava,
+    description,
+    media,
+    breed,
+    loading:false
+  })
+
+  Ovaj loading resavamo sa konstruktorom gde postavljamo da je loading true, a kada podaci stignu onda smo u stanju loading false.
+
+  definisati render.
+
+  Ako je loading true pokazati sliku loading-a. Ako nije, uraditi destructuring svega u state. 
+  Nakon toga 
+  div.details 
+    div
+      h1{name}
+      h1{animal location breed}
+      button Adopt
+      p{description}
+  
+  
+  Napraviti Slider klasnu komponentu. Njen cilj ce biti da prikazuje slike, i u stanju ce imati aktivnu sliku i niz slika. Aktivna je broj.
+
+  div.carousel
+    img
+    div.carousel-smaller
+      {photos.map}
+        img 
+          key 
+          onClick = definisati funkciju za klik koja ce dohvatati index i postavljati index kao aktivna slika
+          data-index={}
+          src
+          klasa - ako je index isto sto i aktivna slika staviti klasu active, ako ne nista
+          alt 
+
+
+  Error Boundaries.
+
+  Sa njima mogu da uhvatim greske bez da mi program crash-uje.
+
+    -ErrorBoundary.js
+    - Kod unutra iz dokumentacije
+    Pogldeati dokumentaciju i prekucati kod.
+
+    ERRORBOUNDARY KAKO SMO GA NAPISALI RADI SAMO SA SVOJOM DECOM. TAKO DA NE MOGU DA VRAPUJEM CELU APLIKACIJU NJIME, NEGO MORAM DA GA KORISTIM KAO HOC KAKO BIH MOGAO DA GA KORISTIM.
+  
+  static getDerivedStateFromProps - pogledati dokumentaciju
+
+
+  Context 
+
+  - Unutar konteksta moze da se nalazi bilo sta bukvalno. Funkcija, string, number sta god..
+  - Context se pravi kao komponenta koja ucitava createContext i sa tim createContext definise promenljive i njihove vrednosti koje ce biti dostupne bilo gde unutar aplikacije - globalno gde god ucitam komponentu.
+  - Mogu da definisem i vise ovih COntext-a sa razlicitim vrednostima ali to je bas za neke spec slucajeve
+
+  createContext(["green", () => {}]); 
+  - Ovo je funkcija koja definise moj context. 
+  Ona vraca dva objekta, takozvani Provider i Consumer.
+  
+  - Provider definise scope mog context-a, i njega definisem samo jednom unutar svoje aplikacije. Context ce biti dostupan samo unutar Provider-a.
+
+  - Consumer je nacin na koji uzimam context iz definisanog Provider-a. Consumer uzima funkciju kao child, i unutar te funkcije dostupan je context. Mi necemo na taj nacin koristiti context vec cemo ga konzumirati kroz useContext.
+
+  - Objekat definisan unutar createContext je onaj koji je default-ni ako nema provider-a unutar Component koji pusakava da koristi context sa useContext. Ako je provider definisan, koristi se vrednost value atributa unutar njega.
+
+  - Ja sam gore za createContext stavio ["", ()=>{}] sa drugim parametrom funkcije da bih napravio strukturu kao sto je ona koju vraca useState. 
+  To je zato sto cu upravo kao kontext cuvati ono sto je vratio useState. Naravno nisam morao ovako mogao sam to da uradim i sa nekim tekstom obicnim koji cu cuvati u context-u. Najcesce je to obj sa prop.
+
+  PORTALS
+
+  - Cela aplikacija se unutar React-a pise u root komponenti. Medjutim cesto se dolazi do toga da bi bilo veoma dobro da se deo aplikacije pise van tog root diva.
+  Ovde u app bilo je potrebno napraviti div koji ce otvoriti pop up modal. 
+  Kako bi taj modal zahtevao mnogo mnogo css-a i truda da se napravi unutar root diva, mi pravimo iznad root diva jos jedan div modal kome cemo pomocu modal-a upisati sadrzaj.
+
+  - Napravio sam komponentu Modal koja ce se preko portala ustvari i upisati u onaj div#modal.
+  Ova komponenta ne vraca JSX vec vraca sta god da vrati createPortal() funkcija. Create portal uzima  children  koje treba da upise kao prvi parametar, a drugi je gde ce upisati children.
+
+  - OSim toga sve se tice react-a. 
+
+  UseRef 
+
+  - useRef je funkcija ugradjena u react koja mi omogucava da korsitim jednu verziju nekog elementa i da sa njim radim sta god mi je volja. Kod komponenata, ako napravim 3 komponente koje imaju stanje unutra svaka od njih ce stanje drzati za sebe. Ako dohvatim neki html element sa useRef sigurno koristim samo tu jednu verziju. Nije najbolje objasnjenje i svakako bi trebao procitati vise o useRef
+
+  - Evo bolje objasnjenja sa INTERMEDIATE react-a. Ovde je dao primer gde se klikom na dugme povecaj povecavaju vrednosti za state.num i ref num. Prilikom ispisivanja na stranici ti brojevi su isti, ali oni prilikom re render-a ispisuje alert koji ispisuje da je ref num veci za 1 od state num.
+
+  const [stateNumber, setStateNumber] = useState(0);
+  const numRef = useRef(0);
+
+  function incrementAndDelayLogging() {
+    setStateNumber(stateNumber + 1);
+    numRef.current++;
+    setTimeout(
+      () => alert(`state: ${stateNumber} | ref: ${numRef.current}`),
+      1000
+    );
+  }
+
+  return (
+    <div>
+      <h1>useRef Example</h1>
+      <button onClick={incrementAndDelayLogging}>delay logging</button>
+      <h4>state: {stateNumber}</h4>
+      <h4>ref: {numRef.current}</h4>
+    </div>
+  );
+
+  Zasto ovo radi kaze da je zbog closure-a koji idalje drzi vrednost za state num. 
+  Kada je ref koristan onda? UseRef je veoma koristan kada je potrebno imati vrednost za koju zelim da se drzim i ne zelim da bude ne stabilna. Na primer ako cesto radim nesto sa elementom doma unutar func based componente onda bi ona trebala da bude ref kako ne bi bilo nekih ne predvidjenih okolnosti.
+
+  ********************** INTERMEDIATE REACT **********************
+
+  Hooks in-Depth
+
+  useReducer 
+  - On je hook. A termin Reducer znaci da je to funkcija koja uzima staro stanje, neku akciju koju treba izvesti nad tim starim stanjem, i vraca novo stanje koje je uzrok akcije.
+
+  - useReducer vraca dve stvari: Objekat koji predstavlja trenutno stanje, a drugo je dispatcher koji mi omogucaava da dispatchujem akciju do reducera.
+
+  - Funkcija koja uzima staro stanje i akciju mora da se definise u kodu. Ona ima upravo ta dva parametra i kao rezultat mora vratiti novo stanje.
+
+  - Primer koda: 
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "INCREMENT_R":
+      return Object.assign({}, state, { r: limitRGB(state.r + step) });
+    case "DECREMENT_R":
+      return Object.assign({}, state, { r: limitRGB(state.r - step) });
+    case "INCREMENT_G":
+      return Object.assign({}, state, { g: limitRGB(state.g + step) });
+    case "DECREMENT_G":
+      return Object.assign({}, state, { g: limitRGB(state.g - step) });
+    case "INCREMENT_B":
+      return Object.assign({}, state, { b: limitRGB(state.b + step) });
+    case "DECREMENT_B":
+      return Object.assign({}, state, { b: limitRGB(state.b - step) });
+    default:
+      return state;
+  }
+};
+
+const ReducerComponent = () => {
+  const [{ r, g, b }, dispatch] = useReducer(reducer, { r: 0, g: 0, b: 0 });
+
+  return (
+    <div>
+      <h1 style={{ color: `rgb(${r}, ${g}, ${b})` }}>useReducer Example</h1>
+      <div>
+        <span>r</span>
+        <button onClick={() => dispatch({ type: "INCREMENT_R" })}>➕</button>
+        <button onClick={() => dispatch({ type: "DECREMENT_R" })}>➖</button>
+      </div>
+      <div>
+        <span>g</span>
+        <button onClick={() => dispatch({ type: "INCREMENT_G" })}>➕</button>
+        <button onClick={() => dispatch({ type: "DECREMENT_G" })}>➖</button>
+      </div>
+      <div>
+        <span>b</span>
+        <button onClick={() => dispatch({ type: "INCREMENT_B" })}>➕</button>
+        <button onClick={() => dispatch({ type: "DECREMENT_B" })}>➖</button>
+      </div>
+    </div>
+  );
+
+  On kaze kako sada mnogo manje koristi Redux, jer sa useContext i useReducer bukvalno dobija istu funkcionalnost.
+
+
+  useMemo() 
+
+  - useMemo je funkcija koja mi omogucava da unutar jedne komponetne ne moram da re renderujem ne potrebne stvari. Ako imam neku komplikovanu funkciju kojoj treba mnogo vremena da se izvrsi, i ona se izvrsava svaki put kada se nesto prikazuje, nikako nema smisla da nju izvrsavam svaki put kada se promeni neka glupost u komponenti.
+  Za tu funkciju - u kodu fibonaci - mogu da je dodelim useMemo i definisem dependency kada ta funkciaj treba da se izvrsi. 
+  
+  const fib = useMemo(() => fibonacci(num), [num]) - Samo kada se num promeni, izvrsi ce se fibonacci funkcija.
+
+
+  useLayoutEffect()
+
+  - Dobar kada je potrebno izmeriti nesto sto je deo DOM-a. Radi po istom principu kao i useEffect kada je u pitanju dependency kada ce se ponovo izvrsiti. Prazan niz drugi parametar samo jednom!
+  - Jedina razlika u ova dva metoda jeste sto je useEffect donekle asinhron. I on BI TREBALO da se desi nakon re rendera, ali ne zna se tacno u kom trenutku. Dok je useLayout sinhron u tom smislu jer se sigurno desava odmah nakon rendera!
+  
+  import React, { useState, useLayoutEffect, useRef } from "react";
+
+  const LayoutEffectComponent = () => {
+      const [width, setWidth] = useState(0);
+      const [height, setHeight] = useState(0);
+      const el = useRef();
+
+      useLayoutEffect(() => {
+        setWidth(el.current.clientWidth);
+        setHeight(el.current.clientHeight);
+      });
+
+      return (
+        <div>
+          <h1>useLayoutEffect Example</h1>
+          <h2>textarea width: {width}px</h2>
+          <h2>textarea height: {height}px</h2>
+          <textarea
+            onClick={() => {
+              setWidth(0);
+            }}
+            ref={el}
+          />
+        </div>
+      );
+    };
+
+    export default LayoutEffectComponent;
+
+
+
+
+
+    EmotionJS - Pisanje CSS koda unutar JS-a
+
+    - Dozvoljava mi da pisem CSS kod unutar JS-a na neki nacin, i on ce na kraju napraviti CSS kod za mene. Bukvalno ne moram da imam ni jedan jedini css fajl.
+
+
+
+    Code Splitting - 
+
+    - Ne znaci da ce se kod deliti, vec da ne zelim da ucitam u svakom trenutku celu aplikaciju.
+    - Pomocu Code Splitting-a ja ustvari odlazem ucitavanje jednog dela sajta ( uglavnom stranice ) za kasnije.
+
+    - To radim sa lazy i Suspence koje ucitavam iz react.
+    - lazy je tu da ucita moju komponentu. Vise necu imati import .Details u komponenti koja treba da je prikaze, vec const Details = lazy(() => import('./Details'));
+
+    - Osim ovoga unutar komponente koja ima Router unutar sebe, potrebno je da ubacim ceo <Router> u <Suspense fallback={<h1>Neki markup koji ce se prikazati dok se ucitavati Details, odnosno razresava promise import-a</h1>}>
+    - To je sve sto treba da se uradi kako bi lazy loadovao nesto.
+    - Iskoristim lazy da ucitam komponentu, i ceo router ubacim u suspense.
+
+    - Ovde takodje imam primer kada lazy ucitavam Modal popup prozor jer njega treba ucitati samo ako se klikne na dugme. Kod njega sam iskoristio samo lazy import bez Suspense i radilo je sasvim regularno.
+    To je zato sto imam vec definisan jedan suspense na vrhu aplikacije! Mogao sam da citam i neki novi ako je potrebno, ali posto vec imam ovaj to je bilo dovoljno.
+
+
+    Server Side Rendering 
+
+    - Ovo se radi kada je potrebno ubrzati prikaz nase aplikacije. Kako stvari stoje trenutno, mi korisniku saljemo samo 20 linija html koda inicijalno! Nakon toga je potrebno dohvatiti ceo JS koji ce napraviti celu nasu stranicu na korisnikovom browser-u.
+
+    - Prilikom lose internet konekcije ovo moze biti problematicno jer korisnik inicijalno nece videti nista. Mnogo je bolje prikazati barem nesto, i onda cekati da se JS ucita i izvrsi svoj kod.
+
+    IMPLEMENTACIJA
+
+    - Napravljena je komponenta koja se zove ClientApp.js. Njen cilj je samo da ucita App pomocu hydrate funkcije. 
+    - hydrate je veoma slicna render funkciji. Render ce sav sadrzaj koji se nadje unutar target-ovanog html elementa override-ovati. Dok ce hydrate na HTML koji je inicijalno poslat server side renderingom dodati JS kod React-a.
+
+    - Nadalje moram voditi racuna o komponentama, odnosno da nijedna od njih ne poziva neke funkcije vezane za browser odnosno window, jer ce svaka od njih inicijalno biti izvrsena na serveru gde nemam mogucnost rada sa DOM-om.
+    - Svaki kod koji sadrzi rad sa window (document.getElement itd) moram prebaciti u componentDidMount ili useEffect funkcije jer se one izvrsavaju tek kada se komponenta mount-uje.
+
+
+    npm install babel-cli express 
+    
+    "build": "parcel build --public-url ./dist/ src/index.html",
+    "start": "npm -s run build && babel-node server/index.js"
+
+    Dalje je potrebno ubaciti ove dve linije koda. Prva je tu da build-uje nasu production verziju unutar dist folder-a, to ce biti precompiled verzija naseg JS-a.
+
+    - Pogledati index.js fajl unutar server folder-a kako bi dalje video kako ovo funkcionise sa strane Node.js-a
+
+
+
+    TypeScript
+
+    - Konfiguracija za React.
+
+      npm install -D typescript
+      npx tsc --init        - Kako bi se inicijalizovao tsconfig.json
+      
+      Unutar tsconfig.json odkomentarisati jsx: preserve. Promeniti preserve u react.
+
+      Next we need to install the types for our project. Not all projects are written in TypeScript so another project, DefinitelyTyped, provides third party types for your library. 
+      In order to install these types, 
+      * run npm install -D @types/react @types/react-dom @types/reach__router *
+      . This will grab all these type definitions.
+
+    - Ukoliko zelim da koristim JSX unutar Typescript fajla, fajl mora imati ekstenziju .tsx.
+
+
+    Dalje nam umesto ESLINT-a treba TSLINT. TSLINT ce kasnije postati deo ESLINT-a i svi ce koristiti ESLINT.
+
+    npm uninstall eslint babel-eslint eslint-config-prettier eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react eslint-plugin-react-hooks
+  
+
+
+    Redux
+
+    - Centralno mesto za sadrzaj moje aplikacije. On kaze da i ne zna bas koliko bi ga danas realno koristio, ali opet ga valja znati.
+    - On je veoma mocan jer ga je moguce testirati veoma lako.
+
+    Redux devtools mi omogucava da kreiram test za neku akciju unutar Redux dev tools!!! 
+
+    IDEJA ZA PROJEKAT - DODATI DEO GDE SE PRATE AKCIJE KORISNIKA, I AKO NESTO PODJE PO ZLU SALJE CE KOMPLETAN IZVESTAJ U VIDU JSON-A STA JE KORISNIK URADIO KAKO BI DOSLO DO TOGA
+
+
+
+    TESTIRANJE
+
+    Radicemo sa JEST-om.
+    JEST trazi unutar projekta folder sa nazivom __test__, i unutar njega izvrsava testove. Kada god imam dunderscore, simbolika njega jeste da time kazem da ce nesto traziti taj element pod upravo tim imenom. 
+    

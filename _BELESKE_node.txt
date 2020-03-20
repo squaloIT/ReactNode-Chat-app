@@ -1,0 +1,556 @@
+JS je toliko uspesan u najrazlicitijim oblastima iz razloga sto on ne namece mnogo stvari okruzenju unutar koga se izvrsava! 
+Iz tog razloga console.log() u browseru vidimo u dev tools jer je okruzenje odnosno browser to odlucio, dok kod Node-a to vidimo unutar command prompt-a.
+
+Kyle ovde kaze kako cemo veoma brzo unutar node-a koristi binary streams za output ili input kako bi bili sto efikasniji!
+
+
+Izvrsavanje fajla
+
+Ukoliko zelim da moj fajl ima mogucnost izvrsavanja, potrebno je da mu dodam x u linuxu kao executable.
+
+Kada to uradim moj fajl mogud a izvrsavam samo tako sto cu definisati njegovo ime, recimo ex1.js i on ce se izvrsiti.
+
+Istu tu mogucnost imam i sa node ex1.js.
+
+Ukoliko zelim da pokupim parametre koje neko salje kada izvrsava moj fajl, recimo ex1.js --ime=Nikola -pera=peric, to mogu da uradim unutat mog fajla sa process.argv. 
+Ovo mi vraca niz parametara, od kojih su prva dva ne bitna, putanja do node-a i putajna do mog fajla, a posle njih krecu bitni parametri.
+
+Medjutim problem je sto ih ja dobijam kao elemente niza, i ako zelim da ih struktuiram morao bih to da uradim regularnim izrazima ili sa split itd. 
+NARAVNO - nisam lud da izmisljam toplu vodu, vec postoji biblioteka za to i zove se minimist.
+
+Bibiliotea vraca funkciju kojoj se prosledjuje niz argumenata iz kojih ona izvlaci podatke i pravi objekat za mene. Unutar tog objekta se nalaze svi podaci koji mi trebaju.
+
+Medjutim ova biblioteka pretpostavlja mnoge stvari, recimo sta ce pretvoriti u broj sta u boolean itd. Ja mogu da definisem za neki tip parametra koji ce tip podatka biti bez obzira na to sta se prosledi. 
+To radim pomocu drugog parametra funkcije koja vraca lib minimist.
+
+var args = require("minimist")(process.argv.slice(2), {
+  boolean: ["help"], // ako se prosledi --help ili -help, on ce se pretvoriti u bool sta god da se prosledi.
+  string: ["file"] // Ako se prosledi --file ili -file, pretvara se u string bez obzira sta je vrednost.
+})
+console.log(args);
+
+Kad izvrsim: 
+
+./ex1.js --hello=world -c9 - foobar --file
+
+{ 
+  _:   [ "-", "foobar" ],
+  hello: "world,
+  c: 9,
+  file: '' // pretvara u string iako je boolean u pitanju
+}
+
+
+Citanje iz fajla
+
+Posto malopredasnji primer ispisivanja putanje do fajla i nije bio bas funkcionalan ubacujemo citanje fajla.
+
+Pre svega potrebno je razumeti da node ne zna da cita putanju fajla tek tako, on zna da procita sta se prosledi unutar --file=nekaputanja, ali ne zna da tu putanju postavi u odnosu na trenutni dir. Ne bi znao sta je ../ npr.
+
+U tu pricu upada * var path = require("path"); * 
+Ovo je biblioteka ugradjena u Node koja zna da radi sa putanjama.
+
+path.resolve("nekaputanja/drugaputanja") ce se razresiti kao putanja do direktorijuma koji drzi moj fajl koji se izvrsio ( ex1.js ). 
+Dok naravno ako prosledim apsolutnu putanju on ce koristiti apsolutnu putanju.
+
+U pozadini path koristi globalnu promenljivu __dirname koja oznacava direktorijum unutar koga se nalazi fajl koji izvrsavam. U pozadini path.resolve koristi tu putanju ukoliko prosledim relativnu putanju kao parametar ka resolve.
+
+Dobro, obzirom da path ne zna da cita fajl, vec samo zna da odredi putanju u odnosu na neki drugi fajl treba mi nesto sto zna da cita iz fajla.
+To nesto jeste ugradjena biblioteka fs.
+
+Ona cita fajl, pa ovde korsitimo prvo fs.readFileSync(path.resolve( argv.file ))
+ONo sto readFileSync vraca jeste Buffer podataka, i ako pokusam da ispisem to unutar console.log() on ce taj buffer prvo konvertovati u string pre nego ga prosledi do process.stdout.write().
+
+MEdjutim ukoliko iskoristim process.stdout.write odmah za ispis, on ce znati da procita iz buffer-a i dobicu sadrzaj tog fajla, a ne tekstualnu reprezentaciju buffer-a :)
+
+fs.readFile je async citanje fajla, i on kao drugi paramaetar ocekuje callback! Vraca Buffer takodje
+
+Unutar Node-a, kada god se radi sa callback-om uvek je prvi parametar funkcije error, a ostali su oni koji su rezultat operacije.
+
+Ako zelim da ispisem rezultat rada readFile kao string, moram buffer da pretvorim u string. ( mogu to da uraidm tako sto cu da prosledim console.log-u )
+
+
+Kyle kaze da Node starts to shine kada je potrebno izvlaciti deo po deo memorije pomocu stream-ova. Objasnice kasnije zasto. Poenta je da nismo ludi da odjednom izvadimo GB memorije, vec cemo to raditi pomocu stream-ova koji malo po malo ucitavaju podatke. Zamisli kad bi Netflix odjednom slao ceo film xD
+
+
+STDIN
+
+var getStdin = require("get-stdin"); ovako se ucitava i vraca funkciju.
+
+getStdin().then(processFile).catch(error); - Funkcija vraca promise, i mi ovde kazemo pozovi nasu custom funkciju processFile koja ocekuje string ako sve bude kako treba. 
+getStdin uzima sta god bilo trenutno u input buffer-u.
+
+ENV Variables
+
+Unutar node-a, za neki fajl se veoma jednostavno definisu env vrednosti. Naprimer za fajl ex1.js, ja prilikom pozivanja definisem env promenljive npr:
+
+HELLO=WORLD ex1.js          - Ovde ce HELLO biti env promenljiva 
+
+Nju unutar ex1.js mogu da dohvatim sa process.env.HELLO
+
+const BASEPATH = path.resolve(process.env.BASEPATH || __dirname);
+- Napravio sam promenljivu BASEPATH koja je ili __dirname ili prosledjen BASEPATH prilikom poziva.
+
+Nakon toga gde god da mi je potrebna putanja, koristim path.join(BASEPATH, file_path_neki) kako bi spojilo putanje basepath-a i te relativne definisane za path.
+
+
+NODE Streams 
+
+Generalno postoje dva tipa stream-ova - readable i writable.
+
+Readable strimovi su tu kako bi mi citali nesto iz njih, a writable kako bi upisivali nesto u njih.
+
+Ovo su takodje Simplex streamovi kod kojih je moguce samo raditi jednu stvar, ili jedna ili druga.
+Dok postoje i Duplex streamovi koji ujedno mogu da i citaju i pisu.
+
+Streamovi salju podatke u delovima, default od 65 000 byte-ova.
+
+Imam mogucnost vezivanja readable stream-a u writable sa pipe
+
+var stream1; //readable
+var stream2; //writable
+
+var stream3 = stream1.pipe(stream2); 
+// - .pipe vraca novi readable stream, tako da dalje mogu da nadovezem neki stream koji je za upisivanje - writable.
+
+var stream3 = stream1.pipe(stream2).pipe(stream5).pipe(stream6)
+
+Kako sad ovo dolazi u pricu sa onim sto smo ranije naucili - citanje iz fajla na sistemu?
+
+Dolazimo tako sto fs unutar sebee ima funkcije koje citaju iz fajla pomocu readable stream-a, odnosno citaju podatke kroz stream. Ovo je veoma mocno kada su u pitanju veliki fajlovi jer nismo ludi da odjednom sve citamo.
+
+var readableStream = fs.createReadStream(path.join(BASEPATH, args.file))
+
+- Ovaj readable stream sada mogu da iskoristim kako bih ga ispisao u neki writable stream.
+
+var targetStream = process.stdout; // writable stream
+readableStream.pipe(targetStream); // Ispisace sadrzaj fajla koji sam citao stream-om
+
+
+Transform stream
+
+Uz pomoc njega, mogu da udjem u sred nekog stream-a i menjam chuck po chuck onako kako mi odgovara. Cilj je da ono sto dolazi kao tekst iz fajla povecam u velika slova.
+
+Treba ucitati transform iz stream, i posto je to jedina stvar koja mi treba izvucicu samo to.
+
+
+var Transform = require("stream").transform; // Kada se pozove funkcija, ona ocekuje conf obj kao parametar.
+
+var upperStream = new Transform({
+  transform(chunk, enc, next) {
+    this.push(chuck.toString().toUpperCase());
+    next();
+    
+    // chunk je deo stream-a koji obradjujem - on je tipa buffer zato moram da ga pretvorim u string pa toUpperCase().
+    // enc je enkoding 
+    // next() je samo tu da kaze da moze da se predje na sledeci chunk
+  }
+})
+
+// Transform vraca writable stream, u koji upisujem readable stream koji ce se na izlazu pretvoriti u skladu sa onim sto sam definisao unutar transform i ostalim konfiguracijama!
+
+readableStream = readableStream.pipe(upperStream);
+// Sada je u readableStream ponovo readable stream samo su sada sva slova unutar fajla velika
+
+readableStream.pipe(targetStream); // Ispisuje
+
+Unutar transform mogu da postavim setTimeout kako bi proverio kako se svaki korak izvrsava u chunkovima.
+
+
+Sve je ovo super, ja sam sve ovo pisao u process.stdout, ali sta ako zelim da upisem rezultat u file?
+readableStream moram upisati u neki writableStream jasno, a taj stream pravim sa:
+
+var targetStreamFile = fs.createWriteStream(PUTANJA_DO_FAJLA);
+
+Sve sto treba onda da uradim jeste da kazem:  
+readableStream.pipe(targetStreamFile);
+
+
+
+*******************************************************************************
+Posto je i ovo jako dosadno, povecavanje slova, pokazujemo sada kako mozemo da dohvatimo zipovan fajl sa stream-om praveci readable stream. Onda ga transformisemo tako sto ga raspakujemo, izmenimo i onda ponovo zapakujemo!
+
+Za ove stvari imam ugradjenu biblioteku u Node zvanu zlib i ona cini ovo pre jednostavno
+
+let gzipStream = zlib.createGzip(); // Ovo pravi writableStream u koji treba da upisem neki readable kako bih gzipovao.
+readableStream.pipe(gzipStream);
+
+- Medjutim, moram da definisem ekstenziju tog fajla na .gz. To bih bukvalno uradio samo sto bih konkatanacijom na ime fajla dodao .gz
+
+- Za unzipovanje je zlib.createGunzip();      - Tp generise writable stream..
+
+
+
+
+Kada je kraj stream-a?
+
+
+
+Problem kod promise-a jeste sto ne postoji nacin da kazem stop, stani sa izvrsavanjem u sred izvrsavanja promise-a. Iz tog razloga koristimo njegovu alatku CAF.
+
+*
+  Kada god imam neke stvari koje se izvrsavaju konkurentno, a treba da sacekam da se sve zavrse kako bih uradio neki posao, najbolje je da za svaki generisem promise. Onda sve te promise ubacim u promise.all koji ceka da se svi oni zavrse i onda izvrsava funkciju za uspeh.
+*
+
+
+Rad sa bazom
+
+Ovde koristimo SQLite3 bazu podataka jer je mala a sasvim dovoljna za neke manje projekte kao sto je ova. SQLite nije samo za demo projekte, vec moze koristiti i za production kada je potrebna neka manja baza podataka koja nece koristiti ko zna koliko master slave baza i tome slicno.
+
+
+
+
+Web server 
+
+node-static-alias vodi racuna o mime-typeovima kada saljem js fajlove css fajlove i tako te neke stvari kada pravim svoj server
+
+Kyle kaze da se zapravo svi node frameworci koji rade rutiranje i stvari slicne tome svode na niz provera if-ova gde proveravaju metod slanja request-a, url adresu, content-type, da li url adresa odgovara nekom regularnom izrazu i to je to. Tvrdi da je napisao gomilu aplikacija u node-u koristeci samo ovu logiku;
+
+E sad posto su req i res stream-ovi podataka lako se navucem na pomisao kako bi bilo sjajno da citam neki podatak stream-om i samo ga pajpujem na response i tako posaljem podatke. 
+Kaze da bi me to kostalo debelo, jer ne bih dobio nista od content type, content length i podataka koje inace neki STATICKI file server radi za mene.
+Iz tog razloga mi koristimo node-static-alias koji je wrapper sa nekim dodatnim mogucnostima oko node-static 
+
+
+Express
+
+Dalje istu funkcionalnost koju smo imali malopre sa nasim custom definisanim rutama i file server-om sada pravimo sa express-om.
+Express se instalira, i kada se pozove vraca funkciju koja se dalje prosledjuje createServer funkciji.
+
+var app = express(); // Ovako definisem funkciju koja ce definisati moje http zahteve
+var httpserv = http.createServer(app);
+
+
+Middleware je samo fensi rec za funkciju koja ce biti pozvana ako se odredjeni kriterijum ispuni :)
+Sa express-om se pisu sa app.use();
+- Use ce se izvrsiti pre svake rute, tj unutar mog fajla sve se izvsava liniju po liniju, i ako je app.use ispred neke rute sigurno ce se izvrsiti. App.use je funkcija koja odgovara svim url putanjama.
+
+Ona takodje ima mogucnost rada sa async stvarima, tako da funkcija unutar nje osim req i res ima i callback func.
+
+app.use(function middle(req,res,next){
+  //Neki posao
+  next(); // use nece nastaviti dalje ukoliko ne pozovem next! Smatrace da sam zavrsio sa obradjivanjem rute!
+});
+
+Onako kako express handluje rute je taj da on sve app.get app.use app.post itd pozive ubacuje u jedan niz onim redosledom kojim su definisanu u kodu. Kada dodje neki request on sa for loop-om prolazi kroz niz i nalazi rute koje odgovaraju i izvrsava njihove funkcije. Medjutim ako nisu zavrsile obradu zahteva, express nastavlja sa for petljom i ide dalje i proverava koja ruta jos odgovara. 
+Nisu kompletno obradile zahtev ako unutar funkcije imam poziv cb funkcije.
+
+
+Child processes
+
+Node je u stanju da pokrene neki drugi proces iz nekog js fajla. Tako mi iz ex7..js pozivamo child process ex7-child.js i cekamo da se on izvrsi.
+
+var childProc = require("child_process");     -  Ovo je biblioteka koja mi omogucava da uradim ovo 
+
+
+var child = childProc.spawn("node", ["ex7-child.js"]); 
+// Ovde kazem da novi child process treba da se spawnuje, a taj proces je ustvari proces koji ce izvrsiti neku komandu kao poseban proces. Ta komanda je node sa argumentima (arg-om).
+
+// Ono sto vraca spawn jeste Stream koji moze biti readable ili writable, u zavisnosti koji proces se izvrsava. Takodje mozemo se cekati dohadjaj exit
+
+child.on("exit", function onExit(code){
+  console.log("PRoces se zavrsio ", code);
+}); 
+
+Naprimer unutar ovog child procesa ja mogu da napravim ajax zahtev ka nekoj stranici. Medjutim, kako cu unutar fajla koji je pokrenuo proces znati da li je sve proslo kako treba ili ne?
+
+To se radi pomocu exit kodova. Ovaj exit code ja upravo imam unutar funkcije koja se poziva na exit. Kod 0 oznacava kako je sve proslo bez problema, dok kod 1 ili bilo koji drugi oznacava da je doslo do greske.
+
+
+
+**********************************************************
+
+REST nije dobar za neke vece i komplikovanije data modele. Ako imam tako nesto najbolje bi bilo da koristim nesto drugo, dok je REST tu da mi omoguci rad sa manjim relacionim modelima. 
+
+NODE je napravljen za high concurrent API that are not CPU intensive!
+Ovo znaci da, obzirom da je JS asinhron jezik koji ima event loop, on moze da primi ogroman broj zahteva odjednom i obradi ih. To radi tako sto kada stigne jedan zahtev on taj zahtev obradjuje, a vec kada stigne drugi on njega stavlja u event loop, i cim zavrsi posao sa ovim prvim prelazi na sledeci. 
+Takodje, sto vise asinhronog koda u JS-u to bolje, jer ako kod tog prvog zahteva uradim neki asinhron zahtev, nastavlja se sa radom sve dok se taj zahtev ponovo ne vrati.
+
+Nikako nije namenjen za rad koji zahteva tezak CPU rad, jer JS kao jezik nije namenjnen za to. Ako stavim jedan while(true) unutar mog js-a, ja sam blokirao izvrsavanje svega bukvalno jer je on single thread-ed jezik i ne moze da izvrsava nista drugo sem toga. Blokirana je i event loop i sve
+
+Next funkcija, odnosno cb koji se nalazi kao poslednji parametar funkcije unutar app.use poziva sledeci middleware. Takodje ako prosledim parametar unutar zagrada ON SE PROSLEDJUJE DO SLEDCEG MIDDLEWARE-a
+
+
+Definisanje middleware.
+
+Middleware je jedna obicna funkcija i ja ga u kodu mogu deifninsati  kao takvog.
+
+const loggingMiddleware = (req,res,next) => {
+  console.log("Logging");
+  req.mydata="Ovako saljem podatke do sledeceg middleware-a ili controller funkcije";
+}
+
+- E sad kad imam funkciju middleware-a, ja je mogu registrovati na vise nacina.
+
+- 1. Ako zelim da se ovaj middleware pozove samo za jednu jedinu rutu, onda ga deifnisem ovako:
+
+app.get('/', loggingMiddleware, (req, res, next) => {
+  res.send({ message: 'Cao cao' });
+});
+
+- 2. Ako zelim da definisem vise middleware-a koji se pozivaju pre rute  
+
+- 3. Ako zelim da se middleware pozove kada god se pristupi serveru onda koristim app.use.
+
+app.use(loggingMiddleware);
+
+
+Ako zelim da gadjam neku relevatntu putanju, mogu to da uradim tako sto cu da posaljem regex
+app.get("/^me/")      - pocinje sa me
+
+app.get("/user/*")     - OVako sve rute koje pocinju sa /user - ovo je glob ( kaze da je to slicno regex-u )
+
+
+
+SUB ROUTERS
+
+Sub routers mi mnogo olaksavaju kod pisanja koda i definsinanja ruta u express-u. Bukvalno mi omogucavaju da definisem rute u sklopu Router-a i da to premestim u neki drugi fajl kako bi bilo lakse za pronalazenje stvari.
+
+Routeri imaju potpuno istu funkcionalnost kao promenljiva app! Jedina razlika jeste sto sub router ne moze da kaze .listen() i da slusa na nekom portu. Medjutim sasvim regularno mogu da kazem router.get('/') i definisem rutu.
+
+Sub Routeri se veoma jednostavno prave, oni su u sklopu express-a pa ih pravim sa:
+
+var router = express.Router();
+
+- Nakon ovoga mogu da definisem 
+
+router.get('/me', (req,res)=> {
+  res.send({djoka: "hello"});
+});
+
+- Medjutim idalje router visi sam u vazduhu, kao list otkinut od drveta. Da bih uopste mogao da koristim i pogodim ovu rutu moram da je zakacim za app!!!!!
+- Za app je kacim potpuno isto kao middleware!!!!!
+
+app.use("/api", router); // Na ruti /api, pa sta god da ide nakon toga radice router.
+
+Gornju funkciju pogodio bih sa /api/me..
+
+
+ROuter bi mi pomogao kod delova gde bih mogao u situacijama kada za vise delova aplikacije imam razlicite strategije rutiranja. Pogotovo kada se govori o middleware-u autentifikacije to ume da bude cest slucaj.
+
+
+Dalje se navodi primer da mogu pojednostaviti pisanje mojih ruta, jer veoma cesto dolazim do toga da imam istu rutu ali za get post put delete zahteve.
+
+Npr imacu [ get /post, post /post, put /post/:id, delete /post/:id, get /post/:id ]
+- Ovo su realno dve rute i ostalo se razlikuje pod verb-u.
+
+Ovo mogu da napisem i pomocu app i pomocu router na brziz nacin sa route.
+
+router.route("/post")
+  .get((req,res) => {})
+  .post((req,res) => {})
+
+router.route("/post/:id")
+  .get((req,res) => {})
+  .put((req,res) => {})
+  .delete((req,res) => {})
+
+
+************ KOntroleri ***********
+
+Su nista drugo nego funkcije koje se dodaju svakoj ruti. One rade sa modelima koji rade sa bazom podataka i na taj nacin smo dobili celokupnu sliku.
+Kontaktira se odredjena ruta, ruta ima vezan kontroleer za sebe koji radi sa modelom. Model vrati podatke kontroleru, ruta ih vrati do pozivaoca i gg
+
+Nikada unutar kontrolera ne zovem next!!! Jedini slucaj moze da bude ako imam neki error handler na kraju kao poslednju rutu recimo.
+
+
+RESPONSE Object - 
+
+Imam nad res objektom opciju da postavim statusni kod sa 
+res.status(201) 
+
+- On vraca ponovo response object tako da je chainable i mogu da nastavim sa dodavanjem drugih stvari.
+
+res.status(201).json({ message: 'cao cao' });
+
+- json je funkcija koja radi kao send, sa tim sto eksplicitno kaze da cemo slati json nazad i psotavlja adekvatan header. 
+- send je funkcija koja nastoji da provali koji tip podatka saljem kao odgovor, ali nije bas najbolja u tom tako da je uvek bolje biti eksplicitan kada je to moguce.
+
+Takodje kaze da nikako nije dobro pisati bilo kakav kod posle slanja podataka ili sa send ili json ili bilo kako. Postoje neki retki retki slucajevi kad je to jedina opcija ali tu se gotovo sigurno dolazi do bagova.
+
+
+Mongoose
+
+On omogucava da se prave schema za ne relacione baze podataka, kao i  da generise nacin rada sa bazom pomocu nekih njegovih funkcija.
+Recimo da zelim da napravim tabelu Item, prvo bih morao da napravim schemu.  
+
+const itemSchema = new mongoose.Schema({
+  Ovde definisem koje kolone odnosno svojstva ce imati moja schema
+}, { timestamps: true })
+export const Item = mongoose.model('item', itemSchema)
+
+
+Kada ovo definisem, onda unutar kontrolera ili bilo gde da mi je potreban rad sa ovim modelom Item njega ucitam, i koristim metoda ugradjene u njega kao sto su .create, .get, .delete itd..
+
+Sve te funkcije su asinhrone tako da ako zelim da sacekam i ispisem podatke o tom itemu koji sam kreirao morao bih da kazem
+const item = await Item.create({});
+
+C - model.create()
+R - model.find(), model.findOne(), model.findById()
+U - model.update(), model.findByIdAndUpdate(), model.findOneAndUpdate()
+D - model.remove(), model.findByIdAndRemove(), model.findOneAndRemove()
+
+
+VODITI RACUNA KOD FIND FINDONE ...
+Ove funkcije ne vracaju pravi promise, vec fake promise jer zele da dozvole dalje chainovanje funkcija kao sto su .where() ili .limit().
+
+Ako zelim da dobijem pravi promise, a osim toga i da kazem da se query nece dalje nadogradjivati stavlja .exec() na kraj.
+
+var listOfItems = await Item.find().exec();
+
+Kada koristim model.findByIdAndUpdate() jako je bitno da znam da ce po default-u ova funkcija vratiti objekat kakav je bio pre menjanja! Ako zelim da mi vrati objekat nakon menjanja treba da prosledim kao poslednji parametar objekat sa opcijama, a opcija je new: true
+
+model.findByIdAndUpdate(123, { name: 'eat'}, { new: true }).exec();
+ 
+lamela korpa, karike, lanac, lezajevi - sve zivo zamenjeno
+
+
+Kada radim sa async await, AKO DODJE DO GRESKE, gresku hvatam sa try i catch-om. Kod promise-a to radim sa .catch()
+
+
+Kada unutar SCHEMA stavim  { timestamps: true }, on mi automatski generise dva svojstva - createdAt i updatedAt i cuva ih kao datum i vreme.
+
+
+TOKEN SE SALJE UNUTAR HEADER-A!!!
+Dohvata se sa: 
+  req.headers.authorization.split("Bearer ");
+
+Token se postavlja unutar HEADER-a Authorization. Uvek ide sa Bearer
+Authorization: "Bearer sdas6dasd5a75sdaudv22ebnk1 1246`12e 2 2"
+
+
+
+PRIMER JEDNOG AUTH.jS FAJLA 
+
+****************************************************************************************************
+
+
+import config from '../config'
+import { User } from '../resources/user/user.model'
+import jwt from 'jsonwebtoken'
+
+export const newToken = user => {
+  return jwt.sign({ id: user.id }, config.secrets.jwt, {
+    expiresIn: config.secrets.jwtExp
+  })
+}
+
+export const verifyToken = token =>
+  new Promise((resolve, reject) => {
+    jwt.verify(token, config.secrets.jwt, (err, payload) => {
+      if (err) return reject(err)
+      resolve(payload)
+    })
+  })
+
+export const signup = async (req, res) => {
+  console.log(req.body)
+  const email = req.body.email
+  const password = req.body.password
+
+  if (!email || !password) {
+    return res.status(500).json({ error: 'Unesite email i sifru' })
+  }
+
+  const user = await User.create({ email, password })
+  const token = newToken(user)
+  res.status(200).json({ token })
+}
+
+export const signin = async (req, res) => {
+  const email = req.body.email
+  var password = req.body.password
+  console.log(email + ' ' + password)
+  if (!email || !password) {
+    return res.status(500).json({ error: 'Unesite email i sifru' })
+  }
+
+  try {
+    const user = await User.findOne({ email: email }).exec()
+    console.log(user)
+    if (!user) {
+      throw new Error('Ne postoji korisnik sa tim email-om')
+    }
+
+    const match = await user.checkPassword(req.body.password)
+    if (!match) {
+      throw new Error('Ne postoji korisnik sa tom sifrom')
+    }
+
+    const token = newToken(user)
+    res.status(200).json({ token })
+  } catch (e) {
+    console.error(e)
+    return res.status(500).json({ error: e })
+  }
+}
+
+export const protect = async (req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.status(500).json({ error: 'NEMA HEADER-A AUTHORIZACIJE' })
+  }
+  let token = req.headers.authorization.split('Bearer ')[1]
+  if (!token) {
+    return res.status(500).json({ error: 'NEMA TOKENA' })
+  }
+
+  try {
+    const payload = await verifyToken(token) // payload je user vrv
+    console.log('PAYLOAD')
+    console.log(payload)
+    const user = await User.findById(payload.id)
+      .select('-password')
+      .exec()
+    req.user = user
+
+    console.log('USERCINA')
+    console.log(user)
+  } catch (e) {
+    console.error(e)
+  }
+  next()
+}
+
+
+******************************************************************************************************************************88
+
+
+KORISCENJE BCRYPT-A UNUTAR MODELA
+
+
+***********************************************************************************************************************************
+
+
+
+userSchema.pre('save', function(next) {
+  if (!this.isModified('password')) {
+    return next()
+  }
+
+  bcrypt.hash(this.password, 8, (err, hash) => {
+    if (err) {
+      return next(err)
+    }
+
+    this.password = hash
+    next()
+  })
+})
+
+userSchema.methods.checkPassword = function(password) {
+  const passwordHash = this.password
+
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, passwordHash, (err, same) => {
+      if (err) {
+        return reject(err)
+      }
+
+      resolve(same)
+    })
+  })
+}
+
+
+
+
+*******************************************************************************************
