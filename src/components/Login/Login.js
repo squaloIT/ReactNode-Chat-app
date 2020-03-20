@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import css from "./Login.module.css";
+import { login } from "./../../store/actions/auth";
 
 class Login extends Component {
   state = {
@@ -80,10 +81,7 @@ class Login extends Component {
 const mapActionToProps = dispatch => {
   return {
     onClickLogginButton: (email, password) => {
-      dispatch({
-        type: "CHECK_USER_CREDENTIALS_DB",
-        payload: { email, password }
-      });
+      dispatch(login(email, password));
     }
   };
 };

@@ -20,6 +20,7 @@ app.use((req, res, next) => {
 });
 
 app.post("/user/register", register);
+//! GRESKE OBRADITI KAKO TREBA
 
 const start = async () => {
   try {

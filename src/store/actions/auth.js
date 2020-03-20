@@ -5,15 +5,20 @@ import * as actionTypes from "./actionTypes";
 export const login = (email, password) => {
   return dispatch => {
     const userData = { email, password };
-
+    // dispatch(authStart());
+    // {
+    //   type: "AUTH_START",
+    //   payload: { email, password }
+    // }
     axios
       .post(config.serverUrl + "/user/login", userData)
+      //! DO OVDE STIGAO
       .then(res => {
         console.log(res.data);
         if (res.status === 200) {
           setAuthDataInLocalStorage(
-            res.data.idToken,
-            res.data.localId,
+            res.data.user.authData.idToken,
+            res.data.user.authData.userId,
             new Date(new Date().getTime() + res.data.expiresIn * 1000)
           );
           dispatch(authSuccess(res.data));
@@ -28,7 +33,14 @@ export const login = (email, password) => {
       });
   };
 };
-
+export const authSuccess = data => {
+  console.log("login success");
+  return {
+    type: actionTypes.LOGIN_SUCCESS,
+    data,
+    error: null
+  };
+};
 export const register = (email, password, username) => {
   return dispatch => {
     const userData = {
@@ -49,6 +61,7 @@ export const register = (email, password, username) => {
               new Date().getTime() + res.data.user.authData.expiresIn * 1000
             )
           );
+          console.log(res.data.user);
           dispatch(registerSuccess(res.data.user));
           // dispatch(expireTimeLogout(res.data.expiresIn * 1000));
         } else {
@@ -69,14 +82,7 @@ export const registerSuccess = data => {
     error: null
   };
 };
-export const authSuccess = data => {
-  console.log("authSuccess");
-  return {
-    type: actionTypes.REGISTER_SUCCESS,
-    data,
-    error: null
-  };
-};
+
 export const authFailed = error => {
   return {
     type: actionTypes.AUTH_FAILED,
